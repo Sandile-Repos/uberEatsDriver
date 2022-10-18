@@ -1,22 +1,45 @@
-import { View, Text, FlatList } from "react-native";
+import { View, Text, FlatList, useWindowDimensions } from "react-native";
 import React, { useMemo, useRef } from "react";
 import BottomSheet from "@gorhom/bottom-sheet";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import MapView, { Marker } from "react-native-maps";
+import { Entypo } from "@expo/vector-icons";
 
 import orders from "../../../assets/data/orders.json";
 import OrderItem from "../../components/OrderItem";
 
 const OrderScreen = () => {
   const bottomSheetRef = useRef();
-  //To remember the values of snapPoints which would not change in this case useMemo.
-  //Its performance the component would not rerender on open or close of bottom sheet since values would not change
-  //Be careful when implementing useMemo because it is stored in memory, it may have adverse effect to what it ios intended for
+  const { height, width } = useWindowDimensions();
   const snapPoints = useMemo(() => ["12%", "95%"], []);
   return (
     <GestureHandlerRootView style={{ backgroundColor: "lightblue", flex: 1 }}>
-      {/* index={1} in BottomSheet will take the second value(95%) from snapPoints therefor
-      bottomsheet will be opened when component mounts but will take the first value(25%) if not
-      defined */}
+      <MapView
+        style={{
+          height,
+          width,
+        }}
+        showsUserLocation
+        followsUserLocation
+      >
+        {orders.map((order) => (
+          <Marker
+            key={order.id}
+            coordinate={{
+              latitude: order.Restaurant.lat,
+              longitude: order.Restaurant.lng,
+            }}
+            title={order.Restaurant.name}
+            description={order.Restaurant.address}
+          >
+            <View
+              style={{ backgroundColor: "green", padding: 5, borderRadius: 15 }}
+            >
+              <Entypo name="shop" size={24} color="white" />
+            </View>
+          </Marker>
+        ))}
+      </MapView>
       <BottomSheet ref={bottomSheetRef} snapPoints={snapPoints}>
         <View style={{ alignItems: "center", flex: 1 }}>
           <Text
