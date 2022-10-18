@@ -1,9 +1,16 @@
-import { StyleSheet, Text, View, Image } from "react-native";
+import { StyleSheet, Text, View, Image, Pressable } from "react-native";
 import { Entypo } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
 
 const OrderItem = ({ order }) => {
+  const navigation = useNavigation();
   return (
-    <View style={styles.itemContainer}>
+    <Pressable
+      style={styles.itemContainer}
+      onPress={() =>
+        navigation.navigate("OrdersDeliveryScreen", { id: order.id })
+      }
+    >
       <Image source={{ uri: order.Restaurant.image }} style={styles.image} />
       <View style={styles.description}>
         <Text style={styles.name}>{order.Restaurant.name}</Text>
@@ -15,7 +22,7 @@ const OrderItem = ({ order }) => {
       <View style={styles.iconContainer}>
         <Entypo name="check" size={30} color="black" style={styles.icon} />
       </View>
-    </View>
+    </Pressable>
   );
 };
 
