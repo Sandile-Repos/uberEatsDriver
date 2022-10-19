@@ -47,7 +47,24 @@ const OrderDelivery = () => {
         longitude: location.coords.longitude,
       });
     })();
+
+    const foregroundSubscription = Location.watchPositionAsync(
+      {
+        //Tracking options
+        accuracy: Location.Accuracy.High, // how accurate location tracking should be
+        distanceInterval: 100, // how often we should track the position or rerun function eg 100 meters. this will update distance and duration after every 100 meters
+      },
+      (updatedLocation) => {
+        //Update driver location
+        setDriverLocation({
+          latitude: updatedLocation.coords.latitude,
+          longitude: updatedLocation.coords.longitude,
+        });
+      }
+    );
+    return foregroundSubscription;
   }, []);
+
   if (!driverLocation) {
     return <ActivityIndicator size={"large"} />;
   }
@@ -82,12 +99,6 @@ const OrderDelivery = () => {
           ]}
           strokeColor="#3FC060"
           onReady={(result) => {
-            // if (result.distance < 0.5) {
-            //   setIsCourierClose(true);
-            // }
-            console.log(result.distance);
-            console.log(result.duration);
-
             setTotalKm(result.distance);
             setTotalMinutes(result.duration);
           }}
