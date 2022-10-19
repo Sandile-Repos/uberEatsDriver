@@ -15,32 +15,26 @@ import {
 } from "@expo/vector-icons";
 import MapView, { Marker } from "react-native-maps";
 import * as Location from "expo-location";
+import MapViewDirections from "react-native-maps-directions";
+import { GOOGLE_API_KEY } from "@env";
 
+import { styles } from "./styles";
 import orders from "../../../assets/data/orders.json";
 import OrderItem from "../../components/OrderItem";
-import { styles } from "./styles";
+
 const order = orders[0];
 
 const OrderDelivery = () => {
   const [driverLocation, setDriverLocation] = useState(null);
+  const [totalMinutes, setTotalMinutes] = useState(0);
+  const [totalKM, setTotalKm] = useState(0);
+
   const bottomSheetRef = useRef(null);
   const { height, width } = useWindowDimensions();
+
   const snapPoints = useMemo(() => ["12%", "95%"], []);
 
   useEffect(() => {
-    // const getDeliveryLocation = async () => {
-    //   let { status } = await Location.requestForegroundPermissionsAsync();
-    //   if (!status === "granted") {
-    //     console.log("Permission Denied");
-    //     return;
-    //   }
-    //   let location = await Location.getCurrentPositionAsync({});
-    //   setDriverLocation({
-    //     latitude: location.coords.latitude,
-    //     longitude: location.coords.longitude,
-    //   });
-    // };
-    // getDeliveryLocations()
     (async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
       if (!status === "granted") {
@@ -59,71 +53,95 @@ const OrderDelivery = () => {
   }
   return (
     <GestureHandlerRootView style={styles.container}>
-      {/* index={1} in BottomSheet will take the second value(95%) from snapPoints therefor
-      bottomsheet will be opened when component mounts but will take the first value(25%) if not
-      defined */}
+      <MapView
+        style={{
+          height,
+          width,
+        }}
+        showsUserLocation
+        followsUserLocation
+        initialRegion={{
+          latitude: driverLocation.latitude,
+          longitude: driverLocation.longitude,
+          latitudeDelta: 0.07,
+          longitudeDelta: 0.07,
+        }}
+      >
+        <MapViewDirections
+          origin={driverLocation}
+          destination={{
+            latitude: order.User.lat,
+            longitude: order.User.lng,
+          }}
+          strokeWidth={10}
+          waypoints={[
+            {
+              latitude: order.Restaurant.lat,
+              longitude: order.Restaurant.lng,
+            },
+          ]}
+          strokeColor="#3FC060"
+          onReady={(result) => {
+            // if (result.distance < 0.5) {
+            //   setIsCourierClose(true);
+            // }
+            console.log(result.distance);
+            console.log(result.duration);
+
+            setTotalKm(result.distance);
+            setTotalMinutes(result.duration);
+          }}
+          apikey={GOOGLE_API_KEY}
+        />
+        <Marker
+          coordinate={{
+            latitude: order.Restaurant.lat,
+            longitude: order.Restaurant.lng,
+            latitudeDelta: 0.07,
+            longitudeDelta: 0.07,
+          }}
+          title={order.Restaurant.name}
+          description={order.Restaurant.address}
+        >
+          <View
+            style={{ backgroundColor: "green", padding: 5, borderRadius: 15 }}
+          >
+            <Entypo name="shop" size={30} color="white" />
+          </View>
+        </Marker>
+        <Marker
+          coordinate={{
+            latitude: order.User.lat,
+            longitude: order.User.lng,
+            latitudeDelta: 0.07,
+            longitudeDelta: 0.07,
+          }}
+          title={order.User.name}
+          description={order.User.address}
+        >
+          <View
+            style={{ backgroundColor: "green", padding: 5, borderRadius: 15 }}
+          >
+            <MaterialIcons name="restaurant" size={30} color="white" />
+          </View>
+        </Marker>
+      </MapView>
       <BottomSheet
         ref={bottomSheetRef}
         snapPoints={snapPoints}
         handleIndicatorStyle={styles.handleIndicator}
       >
-        <MapView
-          style={{
-            height,
-            width,
-          }}
-          showsUserLocation
-          followsUserLocation
-          initialRegion={{
-            latitude: driverLocation.latitude,
-            longitude: driverLocation.longitude,
-            latitudeDelta: 0.07,
-            longitudeDelta: 0.07,
-          }}
-        >
-          <Marker
-            coordinate={{
-              latitude: order.Restaurant.lat,
-              longitude: order.Restaurant.lng,
-              latitudeDelta: 0.07,
-              longitudeDelta: 0.07,
-            }}
-            title={order.Restaurant.name}
-            description={order.Restaurant.address}
-          >
-            <View
-              style={{ backgroundColor: "green", padding: 5, borderRadius: 15 }}
-            >
-              <Entypo name="shop" size={30} color="white" />
-            </View>
-          </Marker>
-          <Marker
-            coordinate={{
-              latitude: order.User.lat,
-              longitude: order.User.lng,
-              latitudeDelta: 0.07,
-              longitudeDelta: 0.07,
-            }}
-            title={order.User.name}
-            description={order.User.address}
-          >
-            <View
-              style={{ backgroundColor: "green", padding: 5, borderRadius: 15 }}
-            >
-              <MaterialIcons name="restaurant" size={30} color="white" />
-            </View>
-          </Marker>
-        </MapView>
-
         <View style={styles.handleIndicatorContainer}>
-          <Text style={styles.routeDetailsText}>14 min</Text>
+          <Text style={styles.routeDetailsText}>
+            {totalMinutes.toFixed(0)} min
+          </Text>
           <FontAwesome5
             name="shopping-bag"
             size={30}
             color="#3FC060"
             style={styles.shoppingBag}
           />
-          <Text style={styles.routeDetailsText}>5 km</Text>
+          <Text style={styles.routeDetailsText}>{totalKM.toFixed(2)} km</Text>
         </View>
         <View style={styles.deliveryDetailsContainer}>
           <View>
