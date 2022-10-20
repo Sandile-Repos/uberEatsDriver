@@ -1,19 +1,31 @@
-import { View, Text, FlatList, useWindowDimensions } from "react-native";
-import React, { useMemo, useRef } from "react";
-import BottomSheet from "@gorhom/bottom-sheet";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { View, Text, useWindowDimensions } from "react-native";
+import React, { useMemo, useRef, useState, useEffect } from "react";
+import BottomSheet, { BottomSheetFlatList } from "@gorhom/bottom-sheet";
+import { FlatList } from "react-native-gesture-handler";
+
 import MapView, { Marker } from "react-native-maps";
 import { Entypo } from "@expo/vector-icons";
+import { DataStore } from "aws-amplify";
+import { Order } from "../../models";
 
-import orders from "../../../assets/data/orders.json";
 import OrderItem from "../../components/OrderItem";
 
 const OrderScreen = () => {
-  const bottomSheetRef = useRef();
+  const [orders, setOrders] = useState([]);
+
+  const bottomSheetRef = useRef(null);
   const { height, width } = useWindowDimensions();
   const snapPoints = useMemo(() => ["12%", "95%"], []);
+
+  useEffect(() => {
+    DataStore.query(Order, (order) =>
+      order.status("eq", "READY_FOR_PICKUP")
+    ).then(setOrders);
+  }, []);
+  console.log(orders);
+
   return (
-    <GestureHandlerRootView style={{ backgroundColor: "lightblue", flex: 1 }}>
+    <View style={{ backgroundColor: "lightblue" }}>
       <MapView
         style={{
           height,
@@ -41,7 +53,7 @@ const OrderScreen = () => {
         ))}
       </MapView>
       <BottomSheet ref={bottomSheetRef} snapPoints={snapPoints}>
-        <View style={{ alignItems: "center", flex: 1 }}>
+        <View style={{ alignItems: "center", marginBottom: 30 }}>
           <Text
             style={{
               fontSize: 20,
@@ -56,12 +68,12 @@ const OrderScreen = () => {
             Available Orders: {orders.length}
           </Text>
         </View>
-        <FlatList
+        <BottomSheetFlatList
           data={orders}
           renderItem={({ item }) => <OrderItem order={item} />}
         />
       </BottomSheet>
-    </GestureHandlerRootView>
+    </View>
   );
 };
 

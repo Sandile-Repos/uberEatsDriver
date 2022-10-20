@@ -1,3 +1,4 @@
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { StatusBar } from "expo-status-bar";
 import { StyleSheet, View } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
@@ -16,12 +17,14 @@ Amplify.configure({
 
 function App() {
   return (
-    <NavigationContainer>
-      <AuthContextProvider>
-        <Navigation />
-      </AuthContextProvider>
-      <StatusBar style="auto" />
-    </NavigationContainer>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <NavigationContainer>
+        <AuthContextProvider>
+          <Navigation />
+        </AuthContextProvider>
+        <StatusBar style="auto" />
+      </NavigationContainer>
+    </GestureHandlerRootView>
   );
 }
 
