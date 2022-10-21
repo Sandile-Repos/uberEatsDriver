@@ -32,6 +32,7 @@ enum OrderStatus {
   READY_FOR_PICKUP
   PICKED_UP
   COMPLETED
+  ACCEPTED
 }
 
 type Order @model @auth(rules: [{allow: public}]) {
