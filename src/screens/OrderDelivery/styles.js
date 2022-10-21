@@ -24,7 +24,7 @@ export const styles = StyleSheet.create({
     letterSpacing: 0.5,
     marginLeft: 15,
   },
-  orderDetails: { borderTopWidth: 1, borderColor: "lightgrey" },
+  orderDetails: { borderTopWidth: 1, borderColor: "lightgrey", padding: 20 },
   orderItemText: {
     fontSize: 18,
     color: "grey",

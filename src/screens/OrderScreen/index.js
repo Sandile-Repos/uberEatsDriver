@@ -1,7 +1,6 @@
 import { View, Text, useWindowDimensions } from "react-native";
 import React, { useMemo, useRef, useState, useEffect } from "react";
 import BottomSheet, { BottomSheetFlatList } from "@gorhom/bottom-sheet";
-import { FlatList } from "react-native-gesture-handler";
 
 import MapView, { Marker } from "react-native-maps";
 import { Entypo } from "@expo/vector-icons";
@@ -22,7 +21,7 @@ const OrderScreen = () => {
       order.status("eq", "READY_FOR_PICKUP")
     ).then(setOrders);
   }, []);
-  console.log(orders);
+  // console.log(orders);
 
   return (
     <View style={{ backgroundColor: "lightblue" }}>
