@@ -31,7 +31,15 @@ const ORDER_STATUSES = {
 };
 
 const OrderDelivery = () => {
-  const { order, user, dishes, acceptOrder, fetchOrder } = useOrderContext();
+  const {
+    order,
+    user,
+    dishes,
+    acceptOrder,
+    fetchOrder,
+    pickedUpOrder,
+    completeOrder,
+  } = useOrderContext();
 
   const [driverLocation, setDriverLocation] = useState(null);
   const [totalMinutes, setTotalMinutes] = useState(0);
@@ -89,7 +97,7 @@ const OrderDelivery = () => {
     return foregroundSubscription;
   }, []);
 
-  const onButtonPressed = () => {
+  const onButtonPressed = async () => {
     // if (deliveryStatus === ORDER_STATUSES.READY_FOR_PICKUP) {
     if (order?.status === "READY_FOR_PICKUP") {
       bottomSheetRef.current.collapse();
@@ -105,10 +113,11 @@ const OrderDelivery = () => {
     // if (deliveryStatus === ORDER_STATUSES.ACCEPTED) {
     if (order?.status === "ACCEPTED") {
       bottomSheetRef.current?.collapse();
-      setDeliveryStatus(ORDER_STATUSES.PICKED_UP);
+      pickedUpOrder();
     }
     // if (deliveryStatus === ORDER_STATUSES.PICKED_UP) {
     if (order?.status === "PICKED_UP") {
+      await completeOrder();
       bottomSheetRef.current?.collapse();
       navigation.goBack();
     }
