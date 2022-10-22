@@ -102,10 +102,14 @@ const OrderDelivery = () => {
   const restaurantLocation = {
     latitude: order?.Restaurant?.lat,
     longitude: order?.Restaurant?.lng,
+    latitudeDelta: 0.07,
+    longitudeDelta: 0.07,
   };
   const deliveryLocation = {
     latitude: user?.lat,
     longitude: user?.lng,
+    latitudeDelta: 0.07,
+    longitudeDelta: 0.07,
   };
 
   if (!order || !user || !driverLocation) {

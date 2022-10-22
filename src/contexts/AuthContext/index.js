@@ -29,6 +29,20 @@ const AuthContextProvider = ({ children }) => {
       .catch((error) => console.log(error));
   }, [sub]);
 
+  useEffect(() => {
+    if (!dbCourier) {
+      return;
+    }
+    const subscription = DataStore.observe(Courier, dbCourier.id).subscribe(
+      (msg) => {
+        if (msg.opType === "UPDATE") {
+          setDbCourier(msg.element);
+        }
+      }
+    );
+    return () => subscription.unsubscribe();
+  }, [dbCourier]);
+
   return (
     <AuthContext.Provider
       value={{ authUser, dbCourier, sub, setDbCourier, loading }}

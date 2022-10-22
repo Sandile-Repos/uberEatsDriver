@@ -32,8 +32,10 @@ const BottomSheetDetails = (props) => {
       onAccepted();
     } else if (status === "ACCEPTED") {
       bottomSheetRef.current?.collapse();
+      console.log("accept");
       await pickUpOrder();
     } else if (status === "PICKED_UP") {
+      console.log("complete");
       await completeOrder();
       bottomSheetRef.current?.collapse();
       navigation.goBack();
