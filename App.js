@@ -18,16 +18,16 @@ Amplify.configure({
 
 function App() {
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <NavigationContainer>
+    <NavigationContainer>
+      <GestureHandlerRootView style={{ flex: 1 }}>
         <AuthContextProvider>
           <OrderContextProvider>
             <Navigation />
           </OrderContextProvider>
         </AuthContextProvider>
         <StatusBar style="auto" />
-      </NavigationContainer>
-    </GestureHandlerRootView>
+      </GestureHandlerRootView>
+    </NavigationContainer>
   );
 }
 

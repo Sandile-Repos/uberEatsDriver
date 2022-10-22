@@ -11,16 +11,18 @@ const AuthContextProvider = ({ children }) => {
   const sub = authUser?.attributes?.sub;
 
   useEffect(() => {
-    Auth.currentAuthenticatedUser({ bypassCache: true }).then(setAuthUser);
+    Auth.currentAuthenticatedUser({ bypassCache: true })
+      .then(setAuthUser)
+      .catch((error) => console.log(error));
   }, []);
 
   useEffect(() => {
     //setting database Courier when component mounts
-    DataStore.query(Courier, (courier) => courier.sub("eq", sub)).then(
-      (couriers) => {
+    DataStore.query(Courier, (courier) => courier.sub("eq", sub))
+      .then((couriers) => {
         setDbCourier(couriers[0]);
-      }
-    );
+      })
+      .catch((error) => console.log(error));
   }, [sub]);
 
   return (
