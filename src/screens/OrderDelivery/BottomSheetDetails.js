@@ -4,6 +4,7 @@ import { FontAwesome5, Fontisto } from "@expo/vector-icons";
 import BottomSheet from "@gorhom/bottom-sheet";
 import { useOrderContext } from "../../contexts/OrderContext";
 import { styles } from "./styles";
+import { useNavigation } from "@react-navigation/native";
 
 const STATUS_TO_TITLE = {
   READY_FOR_PICKUP: "Accept Order",
@@ -20,6 +21,8 @@ const BottomSheetDetails = (props) => {
   const bottomSheetRef = useRef(null);
 
   const snapPoints = useMemo(() => ["12%", "95%"], []);
+
+  const navigation = useNavigation();
 
   const onButtonPressed = async () => {
     const { status } = order;

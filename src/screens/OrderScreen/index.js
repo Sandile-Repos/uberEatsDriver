@@ -1,28 +1,68 @@
-import { View, Text, useWindowDimensions } from "react-native";
+import {
+  View,
+  Text,
+  useWindowDimensions,
+  ActivityIndicator,
+} from "react-native";
 import React, { useMemo, useRef, useState, useEffect } from "react";
+import * as Location from "expo-location";
+import MapView from "react-native-maps";
 import BottomSheet, { BottomSheetFlatList } from "@gorhom/bottom-sheet";
 
-import MapView from "react-native-maps";
 import { DataStore } from "aws-amplify";
 import { Order } from "../../models";
-
 import OrderItem from "../../components/OrderItem";
 import CustomMarker from "../../components/CustomMarker";
 
 const OrderScreen = () => {
   const [orders, setOrders] = useState([]);
+  const [driverLocation, setDriverLocation] = useState(null);
 
   const bottomSheetRef = useRef(null);
   const { height, width } = useWindowDimensions();
   const snapPoints = useMemo(() => ["12%", "95%"], []);
 
-  useEffect(() => {
-    DataStore.query(Order, (order) =>
-      order.status("eq", "READY_FOR_PICKUP")
-    ).then(setOrders);
-  }, []);
-  // console.log(orders);
+  const fetchOrders = () => {
+    DataStore.query(Order, (order) => order.status("eq", "READY_FOR_PICKUP"))
+      .then(setOrders)
+      .catch((error) => console.log(error));
+  };
 
+  useEffect(() => {
+    fetchOrders();
+
+    const subscription = DataStore.observe(Order).subscribe((msg) => {
+      if (msg.opType === "UPDATE") {
+        fetchOrders();
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    (async () => {
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (!status === "granted") {
+        console.log("Permission Denied");
+        return;
+      }
+      try {
+        let location = await Location.getCurrentPositionAsync();
+        setDriverLocation({
+          latitude: location.coords.latitude,
+          longitude: location.coords.longitude,
+        });
+      } catch (error) {
+        console.log(error);
+      }
+    })();
+  }, []);
+  if (!driverLocation) {
+    return (
+      <ActivityIndicator size={"large"} color="grey" style={{ flex: 1 }} />
+    );
+  }
   return (
     <View style={{ backgroundColor: "lightblue" }}>
       <MapView
@@ -32,6 +72,12 @@ const OrderScreen = () => {
         }}
         showsUserLocation
         followsUserLocation
+        initialRegion={{
+          latitude: driverLocation.latitude,
+          longitude: driverLocation.longitude,
+          latitudeDelta: 0.07,
+          longitudeDelta: 0.07,
+        }}
       >
         {orders.map((order) => (
           <CustomMarker

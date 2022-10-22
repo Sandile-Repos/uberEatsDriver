@@ -1,4 +1,4 @@
-import { useWindowDimensions, ActivityIndicator } from "react-native";
+import { useWindowDimensions, ActivityIndicator, LogBox } from "react-native";
 import React, { useRef, useState, useEffect } from "react";
 
 import { GestureHandlerRootView } from "react-native-gesture-handler";
@@ -13,9 +13,13 @@ import { styles } from "./styles";
 import { useOrderContext } from "../../contexts/OrderContext";
 import BottomSheetDetails from "./BottomSheetDetails";
 import CustomMarker from "../../components/CustomMarker";
+import { DataStore } from "aws-amplify";
+import { Courier } from "../../models";
+import { useAuthContext } from "../../contexts/AuthContext";
 
 const OrderDelivery = () => {
   const { order, user, fetchOrder } = useOrderContext();
+  const { dbCourier } = useAuthContext();
 
   const [driverLocation, setDriverLocation] = useState(null);
   const [totalMinutes, setTotalMinutes] = useState(0);
@@ -34,34 +38,54 @@ const OrderDelivery = () => {
   }, [id]);
 
   useEffect(() => {
+    if (!driverLocation) {
+      return;
+    }
+    DataStore.save(
+      Courier.copyOf(dbCourier, (updated) => {
+        updated.lat = driverLocation.latitude;
+        updated.lng = driverLocation.longitude;
+      })
+    );
+  }, [driverLocation]);
+
+  useEffect(() => {
     (async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
       if (!status === "granted") {
         console.log("Permission Denied");
         return;
       }
-      let location = await Location.getCurrentPositionAsync();
-      setDriverLocation({
-        latitude: location.coords.latitude,
-        longitude: location.coords.longitude,
-      });
+      try {
+        let location = await Location.getCurrentPositionAsync();
+        setDriverLocation({
+          latitude: location.coords.latitude,
+          longitude: location.coords.longitude,
+        });
+      } catch (error) {
+        console.log(error);
+      }
     })();
 
     const foregroundSubscription = async () => {
-      await Location.watchPositionAsync(
-        {
-          //Tracking options
-          accuracy: Location.Accuracy.High, // how accurate location tracking should be
-          distanceInterval: 500, // how often we should track the position or rerun function eg 100 meters. this will update distance and duration after every 100 meters
-        },
-        (updatedLocation) => {
-          //Update driver location
-          setDriverLocation({
-            latitude: updatedLocation.coords.latitude,
-            longitude: updatedLocation.coords.longitude,
-          });
-        }
-      );
+      try {
+        await Location.watchPositionAsync(
+          {
+            //Tracking options
+            accuracy: Location.Accuracy.High, // how accurate location tracking should be
+            distanceInterval: 500, // how often we should track the position or rerun function eg 100 meters. this will update distance and duration after every 100 meters
+          },
+          (updatedLocation) => {
+            //Update driver location
+            setDriverLocation({
+              latitude: updatedLocation.coords.latitude,
+              longitude: updatedLocation.coords.longitude,
+            });
+          }
+        );
+      } catch (error) {
+        console.log(error);
+      }
     };
     return foregroundSubscription;
   }, []);

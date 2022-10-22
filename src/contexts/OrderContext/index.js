@@ -43,7 +43,7 @@ const OrderContextProvider = ({ children }) => {
     const subscription = DataStore.observe(Order, order.id).subscribe(
       ({ opType, element }) => {
         if (opType === "UPDATE") {
-          //order updated behind the scen, fetch new ordersd
+          //order updated behind the scene, fetch new order
           fetchOrder(element.id);
         }
       }
