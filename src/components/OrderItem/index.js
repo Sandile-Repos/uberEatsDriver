@@ -20,10 +20,10 @@ const OrderItem = ({ order }) => {
         navigation.navigate("OrdersDeliveryScreen", { id: order.id })
       }
     >
-      <Image source={{ uri: order.Restaurant.image }} style={styles.image} />
+      <Image source={{ uri: order?.Restaurant?.image }} style={styles.image} />
       <View style={styles.description}>
-        <Text style={styles.name}>{order.Restaurant.name}</Text>
-        <Text style={styles.detail}>{order.Restaurant.address}</Text>
+        <Text style={styles.name}>{order?.Restaurant?.name}</Text>
+        <Text style={styles.detail}>{order?.Restaurant?.address}</Text>
         <Text style={styles.deliveryDetails}>Delivery Details</Text>
         <Text style={styles.detail}>{user?.name}</Text>
         <Text style={styles.detail}>{user?.address}</Text>

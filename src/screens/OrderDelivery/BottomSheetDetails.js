@@ -14,7 +14,7 @@ const STATUS_TO_TITLE = {
 
 const BottomSheetDetails = (props) => {
   const { totalKm, totalMinutes, onAccepted } = props;
-  const isDriverClose = totalKm <= 1; //decrease for higher accuracy
+  const isDriverClose = totalKm <= 2; //decrease for higher accuracy
   const { order, user, dishes, acceptOrder, pickUpOrder, completeOrder } =
     useOrderContext();
 
@@ -32,10 +32,8 @@ const BottomSheetDetails = (props) => {
       onAccepted();
     } else if (status === "ACCEPTED") {
       bottomSheetRef.current?.collapse();
-      console.log("accept");
       await pickUpOrder();
     } else if (status === "PICKED_UP") {
-      console.log("complete");
       await completeOrder();
       bottomSheetRef.current?.collapse();
       navigation.goBack();
