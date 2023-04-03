@@ -29,7 +29,7 @@ const ProfileScreen = () => {
     } else {
       await createCourier();
     }
-    navigation.goBack();
+    navigation.navigate("OrdersScreen");
   };
 
   const updateCourier = async () => {
@@ -48,7 +48,7 @@ const ProfileScreen = () => {
 
   const createCourier = async () => {
     try {
-      const courier = DataStore.save(
+      const courier = await DataStore.save(
         new Courier({
           name,
           sub,

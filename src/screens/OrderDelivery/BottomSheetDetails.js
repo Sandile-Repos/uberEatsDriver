@@ -84,8 +84,8 @@ const BottomSheetDetails = (props) => {
         </View>
         <View style={styles.orderDetails}>
           {dishes?.map((dishItem) => (
-            <Text style={styles.orderItemText} key={dishItem.id}>
-              {dishItem.Dish.name} x{dishItem.quantity}
+            <Text style={styles.orderItemText} key={dishItem?.id}>
+              {dishItem?.Dish?.name} x{dishItem?.quantity}
             </Text>
           ))}
         </View>

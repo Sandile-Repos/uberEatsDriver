@@ -19,7 +19,7 @@ const CustomMarker = ({ data, type }) => {
       <View
         style={{
           backgroundColor: "green",
-          padding: 5,
+          padding: 10,
           borderRadius: 15,
         }}
       >
